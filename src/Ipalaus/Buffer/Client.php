@@ -3,7 +3,7 @@
 namespace Ipalaus\Buffer;
 
 use Exception;
-use Guzzle\Http\Message\Request;
+use GuzzleHttp\Psr7\Response;
 
 class Client
 {
@@ -47,7 +47,7 @@ class Client
      */
     public function getUser()
     {
-        return $this->send($this->getHttp()->get($this->url.'user.json'));
+        return $this->send($this->getHttp()->get($this->url . 'user.json'));
     }
 
     /**
@@ -57,7 +57,7 @@ class Client
      */
     public function getProfiles()
     {
-        return $this->send($this->getHttp()->get($this->url.'profiles.json'));
+        return $this->send($this->getHttp()->get($this->url . 'profiles.json'));
     }
 
     /**
@@ -68,7 +68,7 @@ class Client
      */
     public function getProfile($id)
     {
-        return $this->send($this->getHttp()->get($this->url.'profiles/'.$id.'.json'));
+        return $this->send($this->getHttp()->get($this->url . 'profiles/' . $id . '.json'));
     }
 
     /**
@@ -79,7 +79,7 @@ class Client
      */
     public function getProfileSchedules($id)
     {
-        return $this->send($this->getHttp()->get($this->url.'profiles/'.$id.'/schedules.json'));
+        return $this->send($this->getHttp()->get($this->url . 'profiles/' . $id . '/schedules.json'));
     }
 
     /**
@@ -93,7 +93,7 @@ class Client
     {
         $payload = $this->buildProfileSchedulesPayload($schedules);
 
-        return $this->send($this->getHttp()->post($this->url.'profiles/'.$id.'/schedules/update.json', null, $payload));
+        return $this->send($this->getHttp()->post($this->url . 'profiles/' . $id . '/schedules/update.json', null, $payload));
     }
 
     /**
@@ -127,7 +127,7 @@ class Client
      */
     public function getUpdate($id)
     {
-        return $this->send($this->getHttp()->get($this->url.'updates/'.$id.'.json'));
+        return $this->send($this->getHttp()->get($this->url . 'updates/' . $id . '.json'));
     }
 
     /**
@@ -145,7 +145,7 @@ class Client
     {
         $payload = $this->buildProfileUpdatesPayload(compact('page', 'count', 'since', 'utc'));
 
-        return $this->send($this->getHttp()->get($this->url.'profiles/'.$id.'/updates/pending.json?'.$payload));
+        return $this->send($this->getHttp()->get($this->url . 'profiles/' . $id . '/updates/pending.json?' . $payload));
     }
 
     /**
@@ -163,7 +163,7 @@ class Client
     {
         $payload = $this->buildProfileUpdatesPayload(compact('page', 'count', 'since', 'utc'));
 
-        return $this->send($this->getHttp()->get($this->url.'profiles/'.$id.'/updates/sent.json?'.$payload));
+        return $this->send($this->getHttp()->get($this->url . 'profiles/' . $id . '/updates/sent.json?' . $payload));
     }
 
     /**
@@ -180,7 +180,7 @@ class Client
     {
         $payload = $this->buildProfileUpdatesPayload(compact('page', 'count', 'event'));
 
-        return $this->send($this->getHttp()->get($this->url.'updates/'.$id.'/interactions.json?'.$payload));
+        return $this->send($this->getHttp()->get($this->url . 'updates/' . $id . '/interactions.json?' . $payload));
     }
 
     /**
@@ -237,7 +237,7 @@ class Client
     {
         $payload = $this->buildReorderProfileUpdatesPayload((array) $order, $offset, $utc);
 
-        return $this->send($this->getHttp()->post($this->url.'profiles/'.$id.'/updates/reorder.json', null, $payload));
+        return $this->send($this->getHttp()->post($this->url . 'profiles/' . $id . '/updates/reorder.json', null, $payload));
     }
 
     /**
@@ -278,7 +278,7 @@ class Client
     {
         $payload = $this->buildShuffleProfileUpdatesPayload($count, $utc);
 
-        return $this->send($this->getHttp()->post($this->url.'profiles/'.$id.'/updates/shuffle.json', null, $payload));
+        return $this->send($this->getHttp()->post($this->url . 'profiles/' . $id . '/updates/shuffle.json', null, $payload));
     }
 
     /**
@@ -312,8 +312,13 @@ class Client
     public function createUpdate(Update $update)
     {
         $payload = $this->buildCreateUpdatePayload($update);
-
-        return $this->send($this->getHttp()->post($this->url.'updates/create.json', null, $payload));
+        return $this->send($this->getHttp()->request(
+            'POST',
+            $this->url . 'updates/create.json',
+            [
+                'form_params' => $payload
+            ]
+        ));
     }
 
     /**
@@ -333,11 +338,11 @@ class Client
             'attachment' => $update->attachment
         );
 
-        if ( ! empty($update->media)) {
+        if (!empty($update->media)) {
             $payload['media'] = $update->media;
         }
 
-        if ( ! is_null($update->scheduled_at)) {
+        if (!is_null($update->scheduled_at)) {
             $payload['scheduled_at'] = $update->scheduled_at;
         }
 
@@ -355,7 +360,7 @@ class Client
     {
         $payload = $this->buildUpdateUpdatePayload($update);
 
-        return $this->send($this->getHttp()->post($this->url.'updates/'.$id.'/update.json', null, $payload));
+        return $this->send($this->getHttp()->post($this->url . 'updates/' . $id . '/update.json', null, $payload));
     }
 
     /**
@@ -371,11 +376,11 @@ class Client
             'now' => $update->now,
         );
 
-        if ( ! empty($update->media)) {
+        if (!empty($update->media)) {
             $payload['media'] = $update->media;
         }
 
-        if ( ! is_null($update->scheduled_at)) {
+        if (!is_null($update->scheduled_at)) {
             $payload['scheduled_at'] = $update->scheduled_at;
         }
 
@@ -391,7 +396,7 @@ class Client
      */
     public function shareUpdate($id)
     {
-        return $this->send($this->getHttp()->post($this->url.'updates/'.$id.'/share.json'));
+        return $this->send($this->getHttp()->post($this->url . 'updates/' . $id . '/share.json'));
     }
 
     /**
@@ -402,7 +407,7 @@ class Client
      */
     public function destroyUpdate($id)
     {
-        return $this->send($this->getHttp()->post($this->url.'updates/'.$id.'/destroy.json'));
+        return $this->send($this->getHttp()->post($this->url . 'updates/' . $id . '/destroy.json'));
     }
 
     /**
@@ -415,7 +420,7 @@ class Client
      */
     public function moveUpdateToTop($id)
     {
-        return $this->send($this->getHttp()->post($this->url.'updates/'.$id.'/move_to_top.json'));
+        return $this->send($this->getHttp()->post($this->url . 'updates/' . $id . '/move_to_top.json'));
     }
 
     /**
@@ -429,7 +434,7 @@ class Client
     {
         $payload = http_build_query(array('url' => $url));
 
-        return $this->send($this->getHttp()->get($this->url.'links/shares.json?'.$payload));
+        return $this->send($this->getHttp()->get($this->url . 'links/shares.json?' . $payload));
     }
 
     /**
@@ -445,30 +450,27 @@ class Client
      */
     public function getConfigurationInfo()
     {
-        return $this->send($this->getHttp()->get($this->url.'info/configuration.json'));
+        return $this->send($this->getHttp()->get($this->url . 'info/configuration.json'));
     }
 
     /**
      * Send an authorized request and the response as an array.
      *
-     * @param  \Guzzle\Http\Message\Request  $request
+     * @param  \GuzzleHttp/Psr7/Response  $response
      * @return array
      */
-    protected function send(Request $request)
+    protected function send(Response $response)
     {
-        $request = $this->auth->addCredentialsToRequest($request);
-
-        return $request->send()->json();
+        return json_decode($response->getBody());
     }
 
     /**
      * Create a new Guzzle HTTP Client instance.
      *
-     * @return \Guzzle\Http\Client
+     * @return \GuzzleHttp\Client
      */
     protected function getHttp()
     {
-        return new \Guzzle\Http\Client;
+        return new \GuzzleHttp\Client(['headers' => ['Authorization' => 'Bearer ' . $this->auth->getToken()]]);
     }
-
 }
